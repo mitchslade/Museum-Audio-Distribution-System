@@ -1,3 +1,7 @@
+/*26-02-2015 Multiple Streaming Testing Server*/
+/*By Lee Jackson - Developed from the GStreamer Online Tutorials*/
+/*Includes Addition of Emergency Alarm Option*/
+
 #include <string.h>
 #include <gst/gst.h>
 
@@ -65,29 +69,6 @@ void togglePlayPause(char* Host, int DeviceID)
     g_print ("Setting state to %s\n", data[DeviceID].playing ? "PLAYING" : "PAUSE");
 }
 
-/* int changeFileSrc(char* FilePath) */
-/* { */
-/*   int ret; */
-/*   ret = gst_element_set_state (data.pipeline, GST_STATE_PAUSE); */
-/*   if (ret == GST_STATE_CHANGE_FAILURE) { */
-/*     g_printerr ("Unable to set the pipeline to the ready state.\n"); */
-/*     gst_object_unref (data.pipeline); */
-/*     return -1; */
-/*   } */
-/*   /\*Set File Source*\/ */
-/*   g_object_set (G_OBJECT (data.file_src), "location", FilePath, NULL); */
-
-/*   /\* Start playing *\/ */
-/*   ret = gst_element_set_state (data.pipeline, GST_STATE_PLAYING); */
-/*   if (ret == GST_STATE_CHANGE_FAILURE) { */
-/*     g_printerr ("Unable to set the pipeline to the playing state.\n"); */
-/*     gst_object_unref (data.pipeline); */
-/*     return -1; */
-/*   } */
-/*   data.playing = TRUE; */
-/*   data.rate = 1.0; */
-/*}*/
-
 /* Send seek event to change rate */
 static void send_seek_event (CustomData *data) {
   gint64 position;
@@ -111,7 +92,6 @@ static void send_seek_event (CustomData *data) {
   
   if (data->audio_sink == NULL) {
     /* If we have not done so, obtain the sink through which we will send the seek events */
-    //g_object_get (data->pipeline, "udp-sink", &data->audio_sink, NULL);
     data->audio_sink = gst_bin_get_by_name (GST_BIN(data->pipeline), "udp-sink");
   }
   
@@ -165,14 +145,14 @@ static gboolean handle_keyboard (GIOChannel *source, GIOCondition cond, CustomDa
 		break;
 	case 1:
 		ret = buildPipeline("/home/lee/EmbeddedProject/TestSong.ogg", HOSTIP1, 1);
-		//changeFileSrc("/home/lee/EmbeddedProject/TestSong2.ogg");
 		track = 0;
 		break;
 	}
 	break;
-  //case 'q':
-    //g_main_loop_quit (data[1]->loop);
-    //break;
+	case 'f;':
+		ret = buildPipeline("/home/lee/EmbeddedProject/Alarm.ogg", HOSTIP1, 1);
+		ret = buildPipeline("/home/lee/EmbeddedProject/Alarm.ogg", HOSTIP2, 2);
+		break;
   default:
     break;
   }
@@ -210,16 +190,6 @@ int main(int argc, char *argv[]) {
   ret = buildPipeline("/home/lee/EmbeddedProject/TestSong.ogg", HOSTIP1, 1);
   
   ret = buildPipeline("/home/lee/EmbeddedProject/TestSong2.ogg", HOSTIP2, 2);
-
-  //udpsink host=192.168.1.83 port=5000
-  
-  /*Add the UDP Sink*/
-  //sink     = gst_element_factory_make ("udpsink", "udp-output");
-
-  /*Configure UDP Sink*/
-  //g_object_set (G_OBJECT (sink), "host", "raspberrypi", NULL);
-  //g_object_set (G_OBJECT (sink), "port", 5000, NULL);
-
   
   /* Add a keyboard watch so we get notified of keystrokes */
 #ifdef _WIN32
@@ -228,8 +198,6 @@ int main(int argc, char *argv[]) {
   io_stdin = g_io_channel_unix_new (fileno (stdin));
 #endif
   g_io_add_watch (io_stdin, G_IO_IN, (GIOFunc)handle_keyboard, &data);
-  
-
   
   /* Create a GLib Main Loop and set it to run */
   /*Loop for all Devices*/
