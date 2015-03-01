@@ -20,35 +20,9 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
-	//system("/home/sash/workspace/TCP_Client/shellscript.sh");
 	User_Interface();
 	PROTOCOL testprotocol;
-    int sockfd, portno, n;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
-
-    char buffer[256];
-    if (argc < 3) {
-       fprintf(stderr,"usage %s hostname port\n", argv[0]);
-       exit(0);
-    }
-    portno = atoi(argv[2]);
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0)
-        error("ERROR opening socket");
-    server = gethostbyname(argv[1]);
-    if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host\n");
-        exit(0);
-    }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr,
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-        error("ERROR connecting");
+    
     while (1)
     {
 	//	printf("Please enter the message: ");
@@ -118,3 +92,56 @@ unsigned char Get_Input()
 	return User_Input;
 }
 
+
+void connection setup()
+{
+	int sockfd, portno, n;
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
+    int error_number = 0;
+    char buffer[256];
+    unsigned int wait_time = 5;
+
+    
+    do{ //opens up a do...while loop that checks if an error has occured
+    
+    sleep(wait_time);
+
+    if (argc < 3) { //checks correct arguments have been passed to program
+       fprintf(stderr,"usage %s hostname port\n", argv[0]);
+       exit(0);
+    }
+    
+    portno = atoi(argv[2]);
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
+    {
+        error("ERROR opening socket");
+        error_number ++;
+        
+    }
+    
+    
+    server = gethostbyname(argv[1]);
+    if (server == NULL) 
+    {
+        fprintf(stderr,"ERROR, no such host\n");
+        error_number ++;
+    }
+    
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    bcopy((char *)server->h_addr,
+         (char *)&serv_addr.sin_addr.s_addr,
+         server->h_length);
+    serv_addr.sin_port = htons(portno);
+    
+    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+    {
+        error("ERROR connecting");
+        error_number ++;
+    }
+    
+    }while (error > 0);
+        
+}
