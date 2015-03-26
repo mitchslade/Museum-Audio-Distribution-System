@@ -1,6 +1,12 @@
 CC=gcc
 LIBS= -pthread `pkg-config gstreamer-0.10 --libs`
-CFLAGS=`pkg-config gstreamer-0.10 --cflags`
+CFLAGS= -Wall `pkg-config gstreamer-0.10 --cflags` -I.
+DEPS = Protocol.h Functions.h 
+OBJ = server.o streaming.o
 
-all:
-	$(CC) -o server $(LIBS) $(CFLAGS) server.c
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $<  $(LIBS) $(CFLAGS)
+
+
+server: $(OBJ)
+	gcc -o $@ $^ $(LIBS) $(CFLAGS)
