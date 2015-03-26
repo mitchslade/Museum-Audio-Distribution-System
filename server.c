@@ -290,15 +290,6 @@ int rateChange(int deviceID, int rate)
 }
 int playtoggle(int deviceID)
 {
-	if (playstatus == 0)
-	{
-		printf("Track on %d is playing", deviceID);
-		playstatus = 1;
-	}
-	else
-	{
-		printf("Track on %d is paused", deviceID);
-		playstatus = 0;
-	}
+	togglePlayPause("00000000", &data[deviceID]);
 	return 0;
 }
