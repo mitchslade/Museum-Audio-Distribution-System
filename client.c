@@ -32,23 +32,23 @@ char buffer[256];
 
 
 
-void error(const char *msg)
+void error(const char *msg)// this is a generic error function for development purposes
 {
-perror(msg);
+perror(msg);//an error message can be passed here
 exit(0);
 }
 
 
 int main(int argc, const char *argv[])
 {
-server = gethostbyname(argv[1]);
-portno = atoi(argv[2]);
+server = gethostbyname(argv[1]); //this initialise the server to be used - passed into the program from the script
+portno = atoi(argv[2]); //this initliasees the port number to be used
 
-connection_setup();
-startup();
-while (1)
+connection_setup(); //this sets the connection up
+startup(); //this calls the login functionality
+while (1) //this is the main loop of the program
 {
-sub_menus(main_menu());
+sub_menus(main_menu()); 
 
 }
 
@@ -58,35 +58,35 @@ return 0;
 }
 
 
-char Get_Input()
+char Get_Input() //this is just a development function
 {
 char User_Input;
-scanf(" %c", &User_Input);
+scanf(" %c", &User_Input); // this reads in a char from a console. this will be replaced by a keypad
 return User_Input;
 }
 
-void connection_setup()
+void connection_setup() //this sets the connection with the server up
 {
-int error_number = 0;
-unsigned int wait_time = 5;
-int fails = 0;
+int error_number = 0; // this initialises an error value to 0
+unsigned int wait_time = 5; // this sets a wait time in case of issue
+int fails = 0; // this sets a variable for number of failure to connects that have occured
 
-while(1)
+while(1) //forever loop
 {
-sleep(wait_time);
-error_number = 0;
-sockfd = socket(AF_INET, SOCK_STREAM, 0);
-if (sockfd < 0)
+sleep(wait_time); //a wait time between attempts is set. this can be varied
+error_number = 0; // error number re-initialised for 0 for this instance
+sockfd = socket(AF_INET, SOCK_STREAM, 0); //socket is setup
+if (sockfd < 0) // if there is no socket
 {
-error("ERROR opening socket");
-error_number ++;
-printf("1 \r\n");
+error("ERROR opening socket"); // then there is an error opening the socket
+error_number ++; // error number is incremented.
+
 }
 
-if (server == NULL)
+if (server == NULL) // if there is no server
 {
-fprintf(stderr,"ERROR, no such host\n");
-error_number ++;
+fprintf(stderr,"ERROR, no such host\n"); // there is no host
+error_number ++; // error number is incremented!
 }
 bzero((char *) &serv_addr, sizeof(serv_addr));
 serv_addr.sin_family = AF_INET;
@@ -103,7 +103,7 @@ printf("Connection fail # %d \r\n", fails);
 
 else
 {
-    break;
+    break; // if no errors have occured, then the loop is exited and connection is successful. program continues in main.
 }
 }
 }
@@ -113,34 +113,34 @@ void menu()
 startup();
 }
 
-void startup()
+void startup() //this function sets the hardware up for a user to use
 {
 int error = 0;
-int attempt_count = 0;
-printf("UWEMCSs Museum Audio Device \r\n");
-sleep(3);
-printf("Please Enter Pin:");
-do{
-data_in.Pin_1 = Get_Input();
-error = error + check_if_number(data_in.Pin_1);
+int attempt_count = 0; // this is the number of login attempts
+printf("UWEMCSs Museum Audio Device \r\n"); // prints a nice hello message. this will also play over audio
+sleep(3); // a three second wait to start the system and prepare the user for some excellent entermtainment
+printf("Please Enter Pin:"); // the user is requested to enter a pin
+do{ // this is done at least once, as it is a do loop
+data_in.Pin_1 = Get_Input(); // the user input pin is entered, and each digit is asssigned to an item in the protocol.
+error = error + check_if_number(data_in.Pin_1); //the function then calls check_if_number. this returns a 1 if there is an error, so error is incremented
 data_in.Pin_2 = Get_Input();
 error = error + check_if_number(data_in.Pin_2);
 data_in.Pin_3 = Get_Input();
 error = error + check_if_number(data_in.Pin_3);
 data_in.Pin_4 = Get_Input();
 error = error + check_if_number(data_in.Pin_4);
-if(error != 0)
+if(error != 0) // if error is not 0 - i.e there have been errors
 {
-printf("Incorrect Pin. Please Try Again: \r\n");
-attempt_count++;
+printf("Incorrect Pin. Please Try Again: \r\n");//the pin is incorrect and the user is told
+attempt_count++;// the number of incorrect attempts is incremented
 }
-if(attempt_count >= 10)
+if(attempt_count >= 10) // if they do 10 attempts, they are locked out
 {
-printf("Please contact a museum assistant");
+printf("Please contact a museum assistant"); // on 10 attempts, this is displayed and they cannot use it
 }
-}while (error > 0);
-printf("Pin Accepted! \r\n");
-data_in.Spare = 0b1111;
+}while (error > 0); //keep running this until there are no errors in the pin
+printf("Pin Accepted! \r\n"); // when there are no errors, the pin is correct. well done to the user.
+data_in.Spare = 0b1111; // assigns a value to the spare data in the protocol.
 }
 
 int check_if_number(char pin)
