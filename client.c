@@ -19,9 +19,10 @@ void function_get();
 char difficulty_menu();
 char main_menu();
 char language_menu();
-char exhibit_menu();
+void exhibit_menu();
 void sub_menus(char decision);
 void play_mode();
+void send_data();
 
 
 int check_if_number(char pin);
@@ -48,7 +49,7 @@ connection_setup(); //this sets the connection up
 startup(); //this calls the login functionality
 while (1) //this is the main loop of the program
 {
-sub_menus(main_menu()); 
+sub_menus(main_menu());
 
 }
 
@@ -64,6 +65,8 @@ char User_Input;
 scanf(" %c", &User_Input); // this reads in a char from a console. this will be replaced by a keypad
 return User_Input;
 }
+
+
 
 void connection_setup() //this sets the connection with the server up
 {
@@ -328,7 +331,7 @@ printf("French - press B \r\n");
 abc_input = Get_Input();  // an abc input is received
 
 error_check = check_abc(abc_input); // the input is checked to see if it is an abc input
- 
+
 }while (error_check != 0); // continue to do this until an abc input is received
 
 switch(abc_input) // switch decision based on abc input
@@ -359,16 +362,16 @@ break;
 return decision;
 }
 
-char exhibit_menu() //this menu allows the user to select an exhibit
+
+void exhibit_menu() //this menu allows the user to select an exhibit
 
 {
 char abc_input = 0;
 int error_check = 0;
 int exhibit_input = 0;
-char decision;
 getchar();
 do{ //this is done at least once
-printf("Enter Exhibit Code \r\n"); //user can enter an exhbit code 
+printf("Enter Exhibit Code \r\n"); //user can enter an exhbit code
 scanf("%i",&exhibit_input);
 if(exhibit_input >= 0 && exhibit_input <= 25000) //checks if it is a valid number
 {
@@ -384,7 +387,7 @@ else
 data_in.Exhibit = exhibit_input; // the exhibit number is set in the protocol
 
 error_check = 0;
-selection: 
+selection:
 do{
 printf("Play - press A \r\n"); // the user can select to play the exhibit
 printf("Change difficulty - press B \r\n"); //the user can select to change difficulty
@@ -394,7 +397,7 @@ error_check = check_abc(abc_input); // the input is checked to see if it is vali
 
 }while (error_check != 0); // keep doing this until the input is valid
 
-while(1) 
+while(1)
 {
 switch(abc_input)
 {
@@ -408,16 +411,15 @@ break;
 
 case 'B':
 difficulty_menu(); //difficulty mode is selected
-goto selection; // the user can then choose the play the track 
+goto selection; // the user can then choose the play the track
 break;
 
 case 'b':
 difficulty_menu(); //difficulty mode is selected
-goto selection; // the user can then choose the play the track 
+goto selection; // the user can then choose the play the track
 break;
 }
 }
-return decision;
 }
 
 void play_mode()
@@ -484,7 +486,8 @@ void function_get() // this gets the function
 	}
 }
 
-void send_data(PROTOCOL testprotocol) // this sends the data to the server
+
+void send_data() // this sends the data to the server
 {
 	n = 0;
 	n = write(sockfd,(char*)&data_in,strlen((char*)&data_in)); // writes the data in the buffer
@@ -504,5 +507,3 @@ void read_data()
 	}
 	close(sockfd);
 }
-
-
