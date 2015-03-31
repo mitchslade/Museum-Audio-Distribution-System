@@ -143,91 +143,91 @@ printf("Pin Accepted! \r\n"); // when there are no errors, the pin is correct. w
 data_in.Spare = 0b1111; // assigns a value to the spare data in the protocol.
 }
 
-int check_if_number(char pin)
+int check_if_number(char pin) // a char of an input pin is passed in
 {
-int check_result = 0;
-if(pin >= '0' && pin <= '9')
+int check_result = 0; // the result of the check is initialised to 0
+if(pin >= '0' && pin <= '9') //check if it is a number
 {
-check_result = 0;
+check_result = 0; //if it is a number, the result reamins 0
 }
 else
 {
-check_result = 1;
+check_result = 1; //else, it is not a number, the results is set to 1
 }
 
-return check_result;
+return check_result; // the result is returned
 }
 
-int check_abc(char abc_input)
+int check_abc(char abc_input) // this checks if an input is a letter A-C
 {
 int check_result = 0;
-if (abc_input == 'A' || 'a' || 'B' || 'b' || 'C' || 'c')
+if (abc_input == 'A' || 'a' || 'B' || 'b' || 'C' || 'c') // checks if it is a upper or lower case A-C (either will do)
 {
-check_result  = 0;
+check_result  = 0; // if it is, the result reamins 0
 }
 else
 {
-check_result = 1;
+check_result = 1; //if it is not one of the above, the result is set to 1
 }
 
-return check_result;
+return check_result; // the result is returned
 }
 
-char main_menu()
+char main_menu() // this is the main menu the user sees
 {
 int error_check = 0;
 char abc_input;
 char decision;
 getchar();
-do{
-printf("Enter Exhibit - press A \r\n");
+do{ // the following is done at least once
+printf("Enter Exhibit - press A \r\n");  // various menu options
 printf("Change Language - press B \r\n");
 printf("Change Default Difficulty - press C \r\n");
-abc_input = Get_Input();
+abc_input = Get_Input(); // an abc input is received
 
-error_check = check_abc(abc_input);
+error_check = check_abc(abc_input); // ths input is checked to see if it is indeed abc
 
-}while (error_check != 0);
+}while (error_check != 0); // continue to do this until an abc input is received
 
-switch(abc_input)
+switch(abc_input) // depedning on the abc input, a different decison is set
 {
 case 'A':
-decision = 'e';
+decision = 'e'; // exhibit decision
 break;
 case 'a':
-decision = 'e';
+decision = 'e'; // exhibit decision
 break;
 case 'B':
-decision = 'l';
+decision = 'l'; // language decision
 break;
 case 'b':
-decision = 'l';
+decision = 'l'; // language decision
 break;
 case 'C':
-decision = 'd';
+decision = 'd'; // difficulty decision
 break;
 case 'c':
-decision = 'd';
+decision = 'd'; // difficulty decision
 break;
 }
 
-return decision;
+return decision; // the decison is returned
 }
 
-void sub_menus(char decision)
+void sub_menus(char decision) // this receiveds the decion made in the main menu
 {
 switch(decision)
 {
 case 'd':
-difficulty_menu();
+difficulty_menu(); // if it is a d, the difficult menu is called.
 break;
 
 case 'l':
-language_menu();
+language_menu(); // if it is a l, the language menu is called.
 break;
 
 case 'e':
-exhibit_menu();
+exhibit_menu(); // if it is a e, the exhibit menu is called.
 break;
 }
 
@@ -235,7 +235,7 @@ break;
 }
 
 
-char difficulty_menu()
+char difficulty_menu() // this is the menu where the user can select a difficulty
 
 {
 int error_check = 0;
@@ -243,68 +243,68 @@ char abc_input;
 char decision;
 getchar();
 do{
-printf("Primary School - press A \r\n");
+printf("Primary School - press A \r\n"); // these are the various difficulty levels
 printf("GCSE - press B \r\n");
 printf("A Level - press C \r\n");
 printf("Specialist Degree - press D \r\n");
 printf("Nobel Prize Winner - press E \r\n");
-abc_input = Get_Input();
+abc_input = Get_Input(); // an abc input is received
 
-error_check = check_abc(abc_input);
+error_check = check_abc(abc_input); // the input is checked to see if it is an abc input
 
-}while (error_check != 0);
+}while (error_check != 0); // continue to do this until an abc input is received
 
-switch(abc_input)
+switch(abc_input) // switch decision based on abc input
 {
 case 'A':
-decision = 'p';
-data_in.Difficulty = 1;
-printf("Primary School difficulty selected \r\n");
+decision = 'p'; //difficulty level chosen.
+data_in.Difficulty = 1; // difficulty level set in protocol
+printf("Primary School difficulty selected \r\n"); //difficulty level displayed
 break;
 case 'a':
-decision = 'p';
-data_in.Difficulty = 1;
-printf("Primary School difficulty selected \r\n");
+decision = 'p'; //difficulty level chosen.
+data_in.Difficulty = 1; // difficulty level set in protocol
+printf("Primary School difficulty selected \r\n"); //difficulty level displayed
 break;
 case 'B':
-decision = 'g';
-data_in.Difficulty = 2;
-printf("GCSE difficulty selected \r\n");
+decision = 'g'; //difficulty level chosen.
+data_in.Difficulty = 2; // difficulty level set in protocol
+printf("GCSE difficulty selected \r\n"); //difficulty level displayed
 break;
 case 'b':
-decision = 'g';
-data_in.Difficulty = 2;
-printf("GCSE difficulty selected \r\n");
+decision = 'g'; //difficulty level chosen.
+data_in.Difficulty = 2; // difficulty level set in protocol
+printf("GCSE difficulty selected \r\n"); //difficulty level displayed
 break;
 case 'C':
-decision = 'a';
-data_in.Difficulty = 3;
-printf("A level difficulty selected \r\n");
+decision = 'a'; //difficulty level chosen.
+data_in.Difficulty = 3; // difficulty level set in protocol
+printf("A level difficulty selected \r\n"); //difficulty level displayed
 break;
 case 'c':
-decision = 'a';
-data_in.Difficulty = 3;
-printf("A level difficulty selected \r\n");
+decision = 'a'; //difficulty level chosen.
+data_in.Difficulty = 3; // difficulty level set in protocol
+printf("A level difficulty selected \r\n"); //difficulty level displayed
 break;
 case 'D':
-decision = 's';
-data_in.Difficulty = 4;
-printf("Specialist degree difficulty selected \r\n");
+decision = 's'; //difficulty level chosen.
+data_in.Difficulty = 4; // difficulty level set in protocol
+printf("Specialist degree difficulty selected \r\n"); //difficulty level displayed
 break;
 case 'd':
-decision = 's';
-data_in.Difficulty = 4;
-printf("Specialist degree difficulty selected \r\n");
+decision = 's'; //difficulty level chosen.
+data_in.Difficulty = 4; // difficulty level set in protocol
+printf("Specialist degree difficulty selected \r\n"); //difficulty level displayed
 break;
-case 'E':
+case 'E': //difficulty level chosen.
 decision = 'n';
-data_in.Difficulty = 5;
-printf("Nobel Prize Winner difficulty selected \r\n");
+data_in.Difficulty = 5; // difficulty level set in protocol
+printf("Nobel Prize Winner difficulty selected \r\n"); //difficulty level displayed
 break;
-case 'e':
+case 'e': //difficulty level chosen.
 decision = 'n';
-data_in.Difficulty = 5;
-printf("Nobel Prize Winner difficulty selected \r\n");
+data_in.Difficulty = 5; // difficulty level set in protocol
+printf("Nobel Prize Winner difficulty selected \r\n"); //difficulty level displayed
 break;
 
 
@@ -313,7 +313,7 @@ break;
 return decision;
 }
 
-char language_menu()
+char language_menu() // this is the menu where the user can selecte a language
 
 
 {
@@ -321,33 +321,37 @@ int error_check = 0;
 char abc_input;
 char decision;
 getchar();
-do{
-printf("English - press A \r\n");
+do{ //this is done at least once
+printf("English - press A \r\n"); //the user is given language options
 printf("French - press B \r\n");
 
-abc_input = Get_Input();
+abc_input = Get_Input();  // an abc input is received
 
-error_check = check_abc(abc_input);
+error_check = check_abc(abc_input); // the input is checked to see if it is an abc input
+ 
+}while (error_check != 0); // continue to do this until an abc input is received
 
-}while (error_check != 0);
-
-switch(abc_input)
+switch(abc_input) // switch decision based on abc input
 {
 case 'A':
 decision = 'e';
-printf("English language selected \r\n");
+printf("English language selected \r\n"); //english selected
+data_in.Spare = 1; //language is set in the protocol
 break;
 case 'a':
 decision = 'e';
-printf("English language selected  selected \r\n");
+printf("English language selected  selected \r\n"); //english selected
+data_in.Spare = 1; //language is set in the protocol
 break;
 case 'B':
 decision = 'f';
-printf("French language selected \r\n");
+printf("French language selected \r\n"); //french selected
+data_in.Spare = 2; //language is set in the protocol
 break;
 case 'b':
 decision = 'f';
-printf("French language selected \r\n");
+printf("French language selected \r\n"); //french selected
+data_in.Spare = 2; //language is set in the protocol
 break;
 
 }
@@ -355,7 +359,7 @@ break;
 return decision;
 }
 
-char exhibit_menu()
+char exhibit_menu() //this menu allows the user to select an exhibit
 
 {
 char abc_input = 0;
@@ -363,53 +367,53 @@ int error_check = 0;
 int exhibit_input = 0;
 char decision;
 getchar();
-do{
-printf("Enter Exhibit Code \r\n");
+do{ //this is done at least once
+printf("Enter Exhibit Code \r\n"); //user can enter an exhbit code 
 scanf("%i",&exhibit_input);
-if(exhibit_input >= 0 && exhibit_input <= 25000)
+if(exhibit_input >= 0 && exhibit_input <= 25000) //checks if it is a valid number
 {
-	error_check = 0;
+	error_check = 0; //if it is valid, error check is still 0
 }
 else
 {
-	error_check = 1;
-	printf("Invalid exhibit. Try again");
+	error_check = 1; // if it is not valid, error check is set to 1
+	printf("Invalid exhibit. Try again"); //user is told this is invalid
 }
 
-}while (error_check != 0);
-data_in.Exhibit = exhibit_input;
+}while (error_check != 0); // keep doing this until the exhibit is valid
+data_in.Exhibit = exhibit_input; // the exhibit number is set in the protocol
 
 error_check = 0;
-selection:
+selection: 
 do{
-printf("Play - press A \r\n");
-printf("Change difficulty - press B \r\n");
+printf("Play - press A \r\n"); // the user can select to play the exhibit
+printf("Change difficulty - press B \r\n"); //the user can select to change difficulty
 
-abc_input = Get_Input();
-error_check = check_abc(abc_input);
+abc_input = Get_Input(); // an abc input is receieved
+error_check = check_abc(abc_input); // the input is checked to see if it is valid
 
-}while (error_check != 0);
+}while (error_check != 0); // keep doing this until the input is valid
 
-while(1)
+while(1) 
 {
 switch(abc_input)
 {
 case 'A':
-play_mode();
+play_mode(); // play mode selected
 break;
 
 case 'a':
-play_mode();
+play_mode(); // play mode selected
 break;
 
 case 'B':
-difficulty_menu();
-goto selection;
+difficulty_menu(); //difficulty mode is selected
+goto selection; // the user can then choose the play the track 
 break;
 
 case 'b':
-difficulty_menu();
-goto selection;
+difficulty_menu(); //difficulty mode is selected
+goto selection; // the user can then choose the play the track 
 break;
 }
 }
@@ -420,82 +424,82 @@ void play_mode()
 {
 	while(1)
 	{
-	printf("Playing exhibit \r\n");
-	function_get();
-	send_data(data_in);
-	read_data();
+	printf("Playing exhibit \r\n"); // the exhibit is playing!
+	function_get(); // the program waits for a function
+	send_data(data_in); // the protocol is sent to the server
+	read_data(); //the reply from the server is read
 
 
 	}
 
 }
 
-void function_get()
+void function_get() // this gets the function
 {
 	char abc_input;
 	char function;
 	abc_input = Get_Input();
-	switch(abc_input){
+	switch(abc_input){ // this reads an abc input
 		case 'A':
 			function = 'p'; //play
-			data_in.Function = 1;
+			data_in.Function = 1; //the function is set in the protocol.
 			break;
 		case 'a':
 			function = 'p'; //play
-			data_in.Function = 1;
+			data_in.Function = 1; //the function is set in the protocol.
 			break;
 		case 'B':
 			function = 's'; //stop
-			data_in.Function = 2;
+			data_in.Function = 2; //the function is set in the protocol.
 			break;
 		case 'b':
 			function = 's'; //stop
-			data_in.Function = 2;
+			data_in.Function = 2; //the function is set in the protocol.
 			break;
 		case 'C':
 			function = 'f'; //forward
-			data_in.Function = 8;
+			data_in.Function = 8; //the function is set in the protocol.
 			break;
 		case 'c':
 			function = 'f'; //forward
-			data_in.Function = 8;
+			data_in.Function = 8; //the function is set in the protocol.
 			break;
 		case 'D':
 			function = 'r'; //rewind
-			data_in.Function = 4;
+			data_in.Function = 4; //the function is set in the protocol.
 			break;
 		case 'd':
 			function = 'r'; //rewind
-			data_in.Function = 4;
+			data_in.Function = 4; //the function is set in the protocol.
 			break;
 		case 'E':
 			function = 'b'; //back
-			main_menu(sub_menus);
+			main_menu(sub_menus); //user returns to main menu
 			break;
 		case 'e':
 			function = 'b'; //back
-			main_menu(sub_menus);
+			main_menu(sub_menus); //user returns to main menu
 			break;
 
 	}
 }
 
-void send_data(PROTOCOL testprotocol)
+void send_data(PROTOCOL testprotocol) // this sends the data to the server
 {
 	n = 0;
-	n = write(sockfd,(char*)&data_in,strlen((char*)&data_in));
+	n = write(sockfd,(char*)&data_in,strlen((char*)&data_in)); // writes the data in the buffer
 	if (n < 0)
-	error("ERROR writing to socket");
-	bzero(buffer,256);
+	error("ERROR writing to socket"); //socket error!
+	bzero(buffer,256); // re-initialises the buffer
 
 }
 
 void read_data()
 {
-	n = read(sockfd,buffer,255);
+	n = read(sockfd,buffer,255); //reads the data from the buffer
 	if (n < 0)
 	{
-	error("ERROR reading from socket");
+	error("ERROR reading from socket"); //error reading
 	printf("%s\n",buffer);
 	}
 	close(sockfd);
