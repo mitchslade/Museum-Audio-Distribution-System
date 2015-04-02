@@ -160,6 +160,7 @@ void *connection_handler(void *socket_desc)
     //Receive a message from client
     while( (read_size = recv(sock , (char *)&client_message , sizeof(client_message) , 0)) > 0 )
     {
+			num_err=0;
 			//convert Device Pin to int
 			pin_int = charbcd2int(client_message);
 			if ((pin_int > 9999) || (pin_int < 0)) {
