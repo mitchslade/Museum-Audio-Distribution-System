@@ -28,7 +28,7 @@ CustomData data[DEVICELIMIT];
 void *connection_handler(void *);
 int logon(protocol_struct protocol);
 int logoff(protocol_struct protocol);
-int getFilleeFromDB(int exhibit, char Language, char Difficulty, char *p_fileURL);
+int getFileFromDB(int exhibit, char Language, char Difficulty, char *p_fileURL);
 int rateChange(int deviceID, int rate);
 int playtoggle(int deviceID);
 int charbcd2int(protocol_struct protocol);
@@ -162,7 +162,7 @@ void *connection_handler(void *socket_desc)
     {
 			//convert Device Pin to int
 			pin_int = charbcd2int(client_message);
-			if ((pin_int > 9999) || (pin_int < 0) {
+			if ((pin_int > 9999) || (pin_int < 0)) {
 				//update to invalid PIN number
 				printf("Invalid PIN number\r\n");
 				num_err = 1;
@@ -178,7 +178,7 @@ void *connection_handler(void *socket_desc)
 			puts("---------------------------------------------------");
 			
 			//switch based on the function value
-			if ()num_err == 0) {
+			if (num_err == 0) {
 				switch(client_message.Function)
 				{
 					case LOGON:
@@ -199,7 +199,7 @@ void *connection_handler(void *socket_desc)
 						else
 						{
 							//update to already logged on number
-							print("Already logged on\r\n");
+							printf("Already logged on\r\n");
 							num_err = 1;
 						}
 						break;
@@ -244,7 +244,7 @@ void *connection_handler(void *socket_desc)
 						num_err = rateChange(pin_int, 1);
 						break;
 					case FILE_REQ:
-						if loggedState == LOGGED_ON)
+						if (loggedState == LOGGED_ON)
 						{
 							num_err = getFileFromDB(client_message.Exhibit,client_message.Language, client_message.Difficulty, fileURL);// needs to interact with database
 							if (num_err != 0)
