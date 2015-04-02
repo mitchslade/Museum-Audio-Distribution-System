@@ -1,4 +1,4 @@
-l/*******************************************************************
+/*******************************************************************
     ESD Coursework Server
     Written by James Harvey
     * gcc -pthread -Wall -c "%f"
@@ -19,8 +19,8 @@ l/*******************************************************************
 #include <gst/gst.h>
 
 //Variables
-#DEFINE LOGGED_OFF 0
-#DEFINE LOGGED_ON 1
+#define LOGGED_OFF 0
+#define LOGGED_ON 1
 CustomData data[DEVICELIMIT];
 
 
@@ -130,7 +130,7 @@ int main(int argc , char *argv[])
 void *connection_handler(void *socket_desc)
 {   
     //Variables
-	int loggedState
+	int loggedState;
     int sock = *(int*)socket_desc;
 	int pin_int = 0;
 	int read_size;
@@ -149,7 +149,7 @@ void *connection_handler(void *socket_desc)
 	client_msg = (char*) &client_message;
 	message = "Client Connected!!!\r\n";
 
-	loggedState = LOGGED_OFF
+	loggedState = LOGGED_OFF;
     socklen_t addr_size = sizeof(struct sockaddr_in);
     getpeername(sock, (struct sockaddr *)&addr, &addr_size);
     strcpy(clientip, inet_ntoa(addr.sin_addr)); 
@@ -164,7 +164,7 @@ void *connection_handler(void *socket_desc)
 			pin_int = charbcd2int(client_message);
 			if ((pin_int > 9999) || (pin_int < 0) {
 				//update to invalid PIN number
-				print("Invalid PIN number\r\n");
+				printf("Invalid PIN number\r\n");
 				num_err = 1;
 			}
 			//print out message received for debugging
@@ -192,7 +192,7 @@ void *connection_handler(void *socket_desc)
 							else 
 							{
 								//update to failed logon number
-								print("Failed to logon\r\n");
+								printf("Failed to logon\r\n");
 								num_err = 1;
 							}
 						}
@@ -214,14 +214,14 @@ void *connection_handler(void *socket_desc)
 							else 
 							{
 								//update to failed logoff number
-								print("Failed to logoff\r\n");
+								printf("Failed to logoff\r\n");
 								num_err = 1;
 							}
 						}
 						else
 						{
 							//update to already logged off number
-							print("Already logged off\r\n");
+							printf("Already logged off\r\n");
 							num_err = 1;
 						}
 						break;
