@@ -1,4 +1,4 @@
-/*******************************************************************
+l/*******************************************************************
     ESD Coursework Server
     Written by James Harvey
     * gcc -pthread -Wall -c "%f"
@@ -18,38 +18,42 @@
 #include <string.h>
 #include <gst/gst.h>
 
+//Variables
+#DEFINE LOGGED_OFF 0
+#DEFINE LOGGED_ON 1
+CustomData data[DEVICELIMIT];
+
+
 //Functions
 void *connection_handler(void *);
 int logon(protocol_struct protocol);
 int logoff(protocol_struct protocol);
-int getFileFromDB(int exhibit, char Language, char Difficulty, char *p_fileURL);
-
+int getFilleeFromDB(int exhibit, char Language, char Difficulty, char *p_fileURL);
 int rateChange(int deviceID, int rate);
 int playtoggle(int deviceID);
 int charbcd2int(protocol_struct protocol);
 int playstatus = 0;
-CustomData data[DEVICELIMIT];
+
+
 
   
 int main(int argc , char *argv[])
 {
- printf("first first");
+ printf("Server Started\r\n");
  	  /* Initialize GStreamer */
   int i;
-  printf("first");
   gst_init (&argc, &argv);
-  printf("second");
   
   /* Initialize our data structure */
   
   memset (&data, 0, sizeof (data));
-  printf("array made");
+  printf("Device array made\r\n");
   for(i=0; i<=DEVICELIMIT; i++)
   {
 	data[i].loop = g_main_loop_new (NULL, FALSE);
 	//g_main_loop_run (data[i].loop);
   }
-  printf("array filled");
+  printf("Device array filled\r\n");
 	//Variables
     int socket_desc;
 	int	client_sock;
@@ -61,9 +65,9 @@ int main(int argc , char *argv[])
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     if (socket_desc == -1)
     {
-        printf("Could not create socket");
+        printf("Could not create socket\r\n");
     }
-    puts("Socket created");
+    puts("Socket created\r\n");
      
     //Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
@@ -74,36 +78,31 @@ int main(int argc , char *argv[])
     if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
     {
         //print the error message
-        perror("bind failed. Error");
+        perror("Bind failed. Error\r\n");
         return 1;
     }
-    puts("bind done");
+    puts("Bind done\r\n");
      
     //Listen
     listen(socket_desc , 3);
      
     //Accept and incoming connection
-    puts("Waiting for incoming connections...");
-    c = sizeof(struct sockaddr_in);
-     
-     
-    //Accept and incoming connection
-    puts("Waiting for incoming connections...");
+    puts("Waiting for incoming connections...\r\n");
     c = sizeof(struct sockaddr_in);
 	pthread_t thread_id;
 	
     while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
     {
-        puts("Connection accepted");
+        puts("Connection accepted\r\n");
         if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) < 0)
         {
-            perror("could not create thread");
+            perror("could not create thread\r\n");
             return 1;
         }
         
         //Now join the thread , so that we don't terminate before the thread
         //pthread_join( thread_id , NULL);
-        puts("Handler assigned");
+        puts("Handler assigned\r\n");
 		
 		//Delay added to reduce likelihood of client_sock and host_name
 		//changing before the values have been saved by the thread. 
@@ -117,7 +116,7 @@ int main(int argc , char *argv[])
      
     if (client_sock < 0)
     {
-        perror("accept failed");
+        perror("accept failed\r\n");
         return 1;
     }
      
@@ -131,6 +130,7 @@ int main(int argc , char *argv[])
 void *connection_handler(void *socket_desc)
 {   
     //Variables
+	int loggedState
     int sock = *(int*)socket_desc;
 	int pin_int = 0;
 	int read_size;
@@ -147,8 +147,9 @@ void *connection_handler(void *socket_desc)
 	//Initialise Pointers
 	fileURL = filename;
 	client_msg = (char*) &client_message;
-	message = "Client Connected!!!";
+	message = "Client Connected!!!\r\n";
 
+	loggedState = LOGGED_OFF
     socklen_t addr_size = sizeof(struct sockaddr_in);
     getpeername(sock, (struct sockaddr *)&addr, &addr_size);
     strcpy(clientip, inet_ntoa(addr.sin_addr)); 
@@ -161,7 +162,11 @@ void *connection_handler(void *socket_desc)
     {
 			//convert Device Pin to int
 			pin_int = charbcd2int(client_message);
-			
+			if ((pin_int > 9999) || (pin_int < 0) {
+				//update to invalid PIN number
+				print("Invalid PIN number\r\n");
+				num_err = 1;
+			}
 			//print out message received for debugging
 			puts("---------------------------------------------------");
 			printf("Pin (chars) = %d,%d,%d,%d\r\n", client_message.Pin_1, client_message.Pin_2, client_message.Pin_3, client_message.Pin_4);
@@ -173,46 +178,93 @@ void *connection_handler(void *socket_desc)
 			puts("---------------------------------------------------");
 			
 			//switch based on the function value
-			switch(client_message.Function)
-			{
-				case LOGON:
-					num_err = logon(client_message);
-					break;
-				case LOGOFF:
-					num_err = logoff(client_message);
-					break;
-				case PLAY:		
-					num_err = playtoggle(pin_int);
-					break;
-				case PAUSE:
-					num_err = playtoggle(pin_int);
-					break;
-				case REWIND:
-					num_err = rateChange(pin_int, -3);
-					break;
-				case FAST_FORWARD:
-					num_err = rateChange(pin_int, 3);
-					break;
-				case REWIND_STOP:
-					num_err = rateChange(pin_int, 1);
-					break;
-				case FAST_FORWARD_STOP:
-					num_err = rateChange(pin_int, 1);
-					break;
-				case FILE_REQ:
-					num_err = getFileFromDB(client_message.Exhibit,client_message.Language, client_message.Difficulty, fileURL);// needs to interact with database
-					if (num_err != 0)
-					{
+			if ()num_err == 0) {
+				switch(client_message.Function)
+				{
+					case LOGON:
+						if (loggedState != LOGGED_ON)
+						{
+							num_err = logon(client_message);
+							if (num_err == 0)
+							{
+								loggedState = LOGGED_ON;
+							}
+							else 
+							{
+								//update to failed logon number
+								print("Failed to logon\r\n");
+								num_err = 1;
+							}
+						}
+						else
+						{
+							//update to already logged on number
+							print("Already logged on\r\n");
+							num_err = 1;
+						}
 						break;
-					}
-
-					num_err = buildPipeline(fileURL, clientip, &data[pin_int]);
-					break;
-				default :
-					printf("Unknown Command - %d\r\n",client_message.Function);
-					num_err = 101;
+					case LOGOFF:
+						if (loggedState == LOGGED_ON)
+						{
+							num_err = logoff(client_message);
+							if (num_err == 0)
+							{
+								loggedState = LOGGED_OFF;
+							}
+							else 
+							{
+								//update to failed logoff number
+								print("Failed to logoff\r\n");
+								num_err = 1;
+							}
+						}
+						else
+						{
+							//update to already logged off number
+							print("Already logged off\r\n");
+							num_err = 1;
+						}
+						break;
+					case PLAY:		
+						num_err = playtoggle(pin_int);
+						break;
+					case PAUSE:
+						num_err = playtoggle(pin_int);
+						break;
+					case REWIND:
+						num_err = rateChange(pin_int, -3);
+						break;
+					case FAST_FORWARD:
+						num_err = rateChange(pin_int, 3);
+						break;
+					case REWIND_STOP:
+						num_err = rateChange(pin_int, 1);
+						break;
+					case FAST_FORWARD_STOP:
+						num_err = rateChange(pin_int, 1);
+						break;
+					case FILE_REQ:
+						if loggedState == LOGGED_ON)
+						{
+							num_err = getFileFromDB(client_message.Exhibit,client_message.Language, client_message.Difficulty, fileURL);// needs to interact with database
+							if (num_err != 0)
+							{
+								break;
+							}
+							num_err = buildPipeline(fileURL, clientip, &data[pin_int]);
+						}
+						else
+						{
+							printf("Device is not logged on");
+							num_err = 1;
+						}
+						break;
+					default :
+						printf("Unknown Command - %d\r\n",client_message.Function);
+						//update to unknown command number
+						num_err = 1;
+				}
 			}
-		
 
 		//generate standard response
 		server_msg.Pin_1 = client_message.Pin_1;
@@ -260,6 +312,7 @@ int logoff(protocol_struct protocol)
 	printf("LOGOFF - %d\r\n", protocol.Function);
 	return 0;
 }
+
 int getFileFromDB(int exhibit, char Language, char Difficulty, char *p_fileURL)
 {
 	strcpy(p_fileURL,"/home/lee/EmbeddedProject/TestSong.ogg");
