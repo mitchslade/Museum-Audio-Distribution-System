@@ -25,7 +25,7 @@ int buildPipeline (char* FilePath, char* HostName, CustomData *data)
   }
 
   
-  data->pipeline = gst_parse_launch ("filesrc name=file-src ! decodebin ! audioconvert ! audio/x-raw-int,channels=1,depth=16,width=16,rate=44100 ! rtpL16pay ! udpsink name=udp-sink ", NULL);
+  data->pipeline = gst_parse_launch ("filesrc name=file-src ! decodebin ! audioconvert ! audio/x-raw-int,channels=1,rate=44100 ! rtpL16pay ! udpsink name=udp-sink ", NULL);
 
   /*Get udp sink and file source elements*/
   data->audio_sink = gst_bin_get_by_name (GST_BIN(data->pipeline), "udp-sink");
