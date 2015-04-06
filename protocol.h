@@ -22,7 +22,7 @@ typedef struct Protocol_struct
 
 	unsigned char Function;
 
-	unsigned char Spare;
+	unsigned char Language;
 	unsigned char Difficulty;
 
 	unsigned int Exhibit;
