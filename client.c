@@ -30,6 +30,7 @@ int sockfd, portno, n;
 struct sockaddr_in serv_addr;
 struct hostent *server;
 char buffer[256];
+char function;
 
 
 
@@ -120,20 +121,23 @@ void startup() //this function sets the hardware up for a user to use
 {
 int error = 0;
 int attempt_count = 0; // this is the number of login attempts
+printf("\033[2J");
 printf("UWEMCSs Museum Audio Device \r\n"); // prints a nice hello message. this will also play over audio
 sleep(3); // a three second wait to start the system and prepare the user for some excellent entermtainment
+printf("\033[2J");
 printf("Please Enter Pin:"); // the user is requested to enter a pin
 do{ // this is done at least once, as it is a do loop
-data_in.Pin_1 = Get_Input(); // the user input pin is entered, and each digit is asssigned to an item in the protocol.
-error = error + check_if_number(data_in.Pin_1); //the function then calls check_if_number. this returns a 1 if there is an error, so error is incremented
-data_in.Pin_2 = Get_Input();
-error = error + check_if_number(data_in.Pin_2);
-data_in.Pin_3 = Get_Input();
-error = error + check_if_number(data_in.Pin_3);
-data_in.Pin_4 = Get_Input();
-error = error + check_if_number(data_in.Pin_4);
+data_in.Pin_1 = (Get_Input()-48); // the user input pin is entered, and each digit is asssigned to an item in the protocol.
+//error = error + check_if_number(data_in.Pin_1); //the function then calls check_if_number. this returns a 1 if there is an error, so error is incremented
+data_in.Pin_2 = (Get_Input()-48);
+//error = error + check_if_number(data_in.Pin_2);
+data_in.Pin_3 = (Get_Input()-48);
+//error = error + check_if_number(data_in.Pin_3);
+data_in.Pin_4 = (Get_Input()-48);
+//error = error + check_if_number(data_in.Pin_4);
 if(error != 0) // if error is not 0 - i.e there have been errors
 {
+printf("\033[2J");
 printf("Incorrect Pin. Please Try Again: \r\n");//the pin is incorrect and the user is told
 attempt_count++;// the number of incorrect attempts is incremented
 }
@@ -143,7 +147,12 @@ printf("Please contact a museum assistant"); // on 10 attempts, this is displaye
 }
 }while (error > 0); //keep running this until there are no errors in the pin
 printf("Pin Accepted! \r\n"); // when there are no errors, the pin is correct. well done to the user.
-data_in.Spare = 0b1111; // assigns a value to the spare data in the protocol.
+sleep(1);
+printf("\033[2J");
+//data_in.Spare = 0b1111; // assigns a value to the spare data in the protocol.
+
+data_in.Function = 128;
+send_data(data_in);
 }
 
 int check_if_number(char pin) // a char of an input pin is passed in
@@ -173,6 +182,8 @@ else
 check_result = 1; //if it is not one of the above, the result is set to 1
 }
 
+
+
 return check_result; // the result is returned
 }
 
@@ -183,6 +194,7 @@ char abc_input;
 char decision;
 getchar();
 do{ // the following is done at least once
+printf("\033[2J");
 printf("Enter Exhibit - press A \r\n");  // various menu options
 printf("Change Language - press B \r\n");
 printf("Change Default Difficulty - press C \r\n");
@@ -214,6 +226,7 @@ decision = 'd'; // difficulty decision
 break;
 }
 
+printf("\033[2J");
 return decision; // the decison is returned
 }
 
@@ -233,7 +246,7 @@ case 'e':
 exhibit_menu(); // if it is a e, the exhibit menu is called.
 break;
 }
-
+sub_menus(main_menu());
 
 }
 
@@ -246,6 +259,7 @@ char abc_input;
 char decision;
 getchar();
 do{
+printf("\033[2J");
 printf("Primary School - press A \r\n"); // these are the various difficulty levels
 printf("GCSE - press B \r\n");
 printf("A Level - press C \r\n");
@@ -339,22 +353,22 @@ switch(abc_input) // switch decision based on abc input
 case 'A':
 decision = 'e';
 printf("English language selected \r\n"); //english selected
-data_in.Spare = 1; //language is set in the protocol
+data_in.Language= 1; //language is set in the protocol
 break;
 case 'a':
 decision = 'e';
 printf("English language selected  selected \r\n"); //english selected
-data_in.Spare = 1; //language is set in the protocol
+data_in.Language = 1; //language is set in the protocol
 break;
 case 'B':
 decision = 'f';
 printf("French language selected \r\n"); //french selected
-data_in.Spare = 2; //language is set in the protocol
+data_in.Language= 2; //language is set in the protocol
 break;
 case 'b':
 decision = 'f';
 printf("French language selected \r\n"); //french selected
-data_in.Spare = 2; //language is set in the protocol
+data_in.Language = 2; //language is set in the protocol
 break;
 
 }
@@ -389,6 +403,7 @@ data_in.Exhibit = exhibit_input; // the exhibit number is set in the protocol
 error_check = 0;
 selection:
 do{
+printf("\033[2J");
 printf("Play - press A \r\n"); // the user can select to play the exhibit
 printf("Change difficulty - press B \r\n"); //the user can select to change difficulty
 
@@ -402,10 +417,8 @@ while(1)
 switch(abc_input)
 {
 case 'A':
-play_mode(); // play mode selected
-break;
-
 case 'a':
+printf("\033[2J");
 play_mode(); // play mode selected
 break;
 
@@ -424,13 +437,31 @@ break;
 
 void play_mode()
 {
+
+	data_in.Function = 16 ;
+	send_data(data_in);
+	printf("\033[2J");
+	printf("Playing exhibit %i \r\n", data_in.Exhibit); // the exhibit is playing!
+	
 	while(1)
 	{
-	printf("Playing exhibit \r\n"); // the exhibit is playing!
 	function_get(); // the program waits for a function
-	send_data(data_in); // the protocol is sent to the server
-	read_data(); //the reply from the server is read
+	if(function == 'b' && data_in.Function == 2) // if the function is back and it is currently paused
+	{
+	sub_menus(main_menu()); // just go straight back to menu
+	}
 
+	else if(function == 'b' && (data_in.Function == 1 || data_in.Function == 16)) //if it has just started playing, is playing and back is selected
+	{
+	data_in.Function = 2; // pause
+	send_data(data_in); //send data
+	sub_menus(main_menu()); // main menu
+	}
+
+	else
+	{
+	send_data(data_in);
+	}
 
 	}
 
@@ -439,48 +470,60 @@ void play_mode()
 void function_get() // this gets the function
 {
 	char abc_input;
-	char function;
+
 	abc_input = Get_Input();
 	switch(abc_input){ // this reads an abc input
-		case 'A':
-			function = 'p'; //play
-			data_in.Function = 1; //the function is set in the protocol.
-			break;
 		case 'a':
+		case 'A':
+			if(data_in.Function == 8)
+			{
+			function = 'g' ;
+			data_in.Function = 9;
+			printf("\033[2J");
+			printf("Playing exhibit %i \r\n", data_in.Exhibit); // the exhibit is playing!
+			}
+			else if(data_in.Function == 4)
+			{
+			function = 't';
+			data_in.Function = 5;
+			printf("\033[2J");
+			printf("Playing exhibit %i \r\n", data_in.Exhibit); // the exhibit is playing!
+			}
+			else
+			{
 			function = 'p'; //play
+			printf("\033[2J");
 			data_in.Function = 1; //the function is set in the protocol.
+			printf("Playing exhibit %i \r\n", data_in.Exhibit); // the exhibit is playing!
+			}
 			break;
+
 		case 'B':
-			function = 's'; //stop
-			data_in.Function = 2; //the function is set in the protocol.
-			break;
 		case 'b':
 			function = 's'; //stop
 			data_in.Function = 2; //the function is set in the protocol.
+			printf("\033[2J");
+			printf("Exhibit %i paused! \r\n", data_in.Exhibit); // the exhibit is playing!
 			break;
 		case 'C':
-			function = 'f'; //forward
-			data_in.Function = 8; //the function is set in the protocol.
-			break;
 		case 'c':
 			function = 'f'; //forward
+			printf("\033[2J");
+			printf("Exhibit %i fastforwarding! \r\n", data_in.Exhibit); // the exhibit is playing!
 			data_in.Function = 8; //the function is set in the protocol.
 			break;
 		case 'D':
-			function = 'r'; //rewind
-			data_in.Function = 4; //the function is set in the protocol.
-			break;
 		case 'd':
 			function = 'r'; //rewind
+			printf("\033[2J");
+			printf("Exhibit %i rewinding! \r\n", data_in.Exhibit); // the exhibit is playing!
 			data_in.Function = 4; //the function is set in the protocol.
 			break;
 		case 'E':
-			function = 'b'; //back
-			main_menu(sub_menus); //user returns to main menu
-			break;
 		case 'e':
 			function = 'b'; //back
-			main_menu(sub_menus); //user returns to main menu
+			//data_in.Function = 2;
+			//printf("\033[2J");
 			break;
 
 	}
@@ -489,11 +532,16 @@ void function_get() // this gets the function
 
 void send_data() // this sends the data to the server
 {
-	n = 0;
+
 	n = write(sockfd,(char*)&data_in,strlen((char*)&data_in)); // writes the data in the buffer
 	if (n < 0)
+	{
+
 	error("ERROR writing to socket"); //socket error!
+	}
+
 	bzero(buffer,256); // re-initialises the buffer
+	
 
 }
 
