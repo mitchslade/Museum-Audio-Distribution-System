@@ -27,6 +27,6 @@ typedef struct Protocol_struct
 
 	unsigned int Exhibit;
 
-}PROTOCOL;
+}Protocol_struct;
 
 #endif
