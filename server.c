@@ -13,7 +13,7 @@
 #include <arpa/inet.h> //inet_addr
 #include <unistd.h>    //write
 #include <pthread.h> //for threading , link with lpthread
-#include <Protocol.h> // protocol structure
+#include <protocol.h> // protocol structure
 #include <Functions.h>//definitions for functions
 #include <string.h>
 #include <gst/gst.h>
@@ -21,17 +21,19 @@
 //Variables
 #define LOGGED_OFF 0
 #define LOGGED_ON 1
+#define AlarmfileURL "/home/eccles/ESD/AlarmSound.ogg"
 CustomData data[DEVICELIMIT];
 
 
 //Functions
+void *alert();
 void *connection_handler(void *);
-int logon(protocol_struct protocol);
-int logoff(protocol_struct protocol);
+int logon(int deviceID);
+int logoff(int deviceID);
 int getFileFromDB(int exhibit, char Language, char Difficulty, char *p_fileURL);
 int rateChange(int deviceID, int rate);
 int playtoggle(int deviceID);
-int charbcd2int(protocol_struct protocol);
+int charbcd2int(Protocol_struct protocol);
 int playstatus = 0;
 
 
@@ -54,6 +56,11 @@ int main(int argc , char *argv[])
 	//g_main_loop_run (data[i].loop);
   }
   printf("Device array filled\r\n");
+  
+  pthread_t thread_id;
+  
+  pthread_create( &thread_id , NULL ,  alert , NULL);
+  
 	//Variables
     int socket_desc;
 	int	client_sock;
@@ -86,10 +93,10 @@ int main(int argc , char *argv[])
     //Listen
     listen(socket_desc , 3);
      
-    //Accept and incoming connection
+    //Accept any incoming connection
     puts("Waiting for incoming connections...\r\n");
     c = sizeof(struct sockaddr_in);
-	pthread_t thread_id;
+	
 	
     while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
     {
@@ -136,8 +143,8 @@ void *connection_handler(void *socket_desc)
 	int read_size;
     int num_err;
     struct sockaddr_in addr;
-	protocol_struct client_message;
-	protocol_struct server_msg;
+	Protocol_struct client_message;
+	Protocol_struct server_msg;
     char clientip[20];
 	char filename[256];
 	char *fileURL;
@@ -170,12 +177,12 @@ void *connection_handler(void *socket_desc)
 			}
 			//print out message received for debugging
 			puts("---------------------------------------------------");
-			printf("Pin (chars) = %d,%d,%d,%d\r\n", client_message.Pin_1, client_message.Pin_2, client_message.Pin_3, client_message.Pin_4);
-			printf("Pin (int) = %d\r\n", pin_int);
-			printf("Function = %d\r\n", client_message.Function);
-			printf("Language %d\r\n", client_message.Language);
-			printf("Difficulty = %d\r\n", client_message.Difficulty);
-			printf("Exhibit = %d\r\n", client_message.Exhibit);
+			//printf("Pin (chars) = %d,%d,%d,%d\r\n", client_message.Pin_1, client_message.Pin_2, client_message.Pin_3, client_message.Pin_4);
+			printf("Thread = %d || Pin (int) = %d || Function = %d\r\n", sock, pin_int, client_message.Function);
+			//printf("Function = %d\r\n", client_message.Function);
+			//printf("Language %d\r\n", client_message.Language);
+			//printf("Difficulty = %d\r\n", client_message.Difficulty);
+			//printf("Exhibit = %d\r\n", client_message.Exhibit);
 			puts("---------------------------------------------------");
 			
 			//switch based on the function value
@@ -185,29 +192,30 @@ void *connection_handler(void *socket_desc)
 					case LOGON:
 						if (loggedState != LOGGED_ON)
 						{
-							num_err = logon(client_message);
+							num_err = logon(pin_int);
 							if (num_err == 0)
 							{
+								data[pin_int].HostName = clientip;
 								loggedState = LOGGED_ON;
 							}
 							else 
 							{
 								//update to failed logon number
 								printf("Failed to logon\r\n");
-								num_err = 1;
+								num_err = 100;
 							}
 						}
 						else
 						{
 							//update to already logged on number
 							printf("Already logged on\r\n");
-							num_err = 1;
+							num_err = 101;
 						}
 						break;
 					case LOGOFF:
 						if (loggedState == LOGGED_ON)
 						{
-							num_err = logoff(client_message);
+							num_err = logoff(pin_int);
 							if (num_err == 0)
 							{
 								loggedState = LOGGED_OFF;
@@ -227,22 +235,70 @@ void *connection_handler(void *socket_desc)
 						}
 						break;
 					case PLAY:		
-						num_err = playtoggle(pin_int);
+						if (loggedState == LOGGED_ON)
+						{
+							num_err = playtoggle(pin_int);
+						}
+						else
+						{
+							printf("Device is not logged on");
+							num_err = 102;
+						}
 						break;
 					case PAUSE:
-						num_err = playtoggle(pin_int);
+						if (loggedState == LOGGED_ON)
+						{
+							num_err = playtoggle(pin_int);
+						}
+						else
+						{
+							printf("Device is not logged on");
+							num_err = 102;
+						}
 						break;
 					case REWIND:
-						num_err = rateChange(pin_int, -3);
+						if (loggedState == LOGGED_ON)
+						{
+							num_err = rateChange(pin_int,-3);
+						}
+						else
+						{
+							printf("Device is not logged on");
+							num_err = 102;
+						}
 						break;
 					case FAST_FORWARD:
-						num_err = rateChange(pin_int, 3);
+						if (loggedState == LOGGED_ON)
+						{
+							num_err = rateChange(pin_int,3);
+						}
+						else
+						{
+							printf("Device is not logged on");
+							num_err = 102;
+						}
 						break;
 					case REWIND_STOP:
-						num_err = rateChange(pin_int, 1);
+						if (loggedState == LOGGED_ON)
+						{
+							num_err = rateChange(pin_int,1);
+						}
+						else
+						{
+							printf("Device is not logged on");
+							num_err = 102;
+						}
 						break;
 					case FAST_FORWARD_STOP:
-						num_err = rateChange(pin_int, 1);
+						if (loggedState == LOGGED_ON)
+						{
+							num_err = rateChange(pin_int,1);
+						}
+						else
+						{
+							printf("Device is not logged on");
+							num_err = 102;
+						}
 						break;
 					case FILE_REQ:
 						if (loggedState == LOGGED_ON)
@@ -252,18 +308,18 @@ void *connection_handler(void *socket_desc)
 							{
 								break;
 							}
-							num_err = buildPipeline(fileURL, clientip, &data[pin_int]);
+							num_err = buildPipeline(fileURL, &data[pin_int]);
 						}
 						else
 						{
 							printf("Device is not logged on");
-							num_err = 1;
+							num_err = 102;
 						}
 						break;
 					default :
 						printf("Unknown Command - %d\r\n",client_message.Function);
 						//update to unknown command number
-						num_err = 1;
+						num_err = 104;
 				}
 			}
 
@@ -293,40 +349,36 @@ void *connection_handler(void *socket_desc)
     //If nothing is read from the socket (as blocking function used will only return zero when disconnected) 
     if(read_size == 0)
     {
-        printf("Client disconnected from socket %d", sock);
+        printf("Client disconnected from socket %d\r\n", sock);
         fflush(stdout);
     }
     else if(read_size == -1) //
     {
-        printf("Failed to receive data from socket %d", sock);
+        printf("Failed to receive data from socket %d\r\n", sock);
     }
          
     return 0;
 }
-int logon(protocol_struct protocol)
+
+int logon(int deviceID)
 {
-	printf("LOGON - %d\r\n", protocol.Function);
+	printf("LOGON - %d\r\n", deviceID);
 	return 0;
 }
-int logoff(protocol_struct protocol)
+
+int logoff(int deviceID)
 {
-	printf("LOGOFF - %d\r\n", protocol.Function);
+	printf("LOGOFF - %d\r\n", deviceID);
 	return 0;
 }
 
 int getFileFromDB(int exhibit, char Language, char Difficulty, char *p_fileURL)
 {
-	strcpy(p_fileURL,"/home/lee/EmbeddedProject/TestSong.ogg");
+	strcpy(p_fileURL,"/home/eccles/ESD/TestSong.ogg");
 	return 0;
 }
 
-//add device id
-/*int BuildPipeline(char *p_fileURL2, char *client_ip, int pin)
-{
-	printf("Start streaming %s to device %d at ip %s\r\n", p_fileURL2, pin, client_ip);
-	return 0;
-}*/
-int charbcd2int(protocol_struct protocol)
+int charbcd2int(Protocol_struct protocol)
 {
 	int answer = 0;
 	answer += 	((protocol.Pin_4) * 1);
@@ -335,6 +387,7 @@ int charbcd2int(protocol_struct protocol)
 	answer += 	((protocol.Pin_1) * 1000);
 	return answer;
 }
+
 int rateChange(int deviceID, int rate)
 {
 	data[deviceID].rate = rate;
@@ -342,8 +395,30 @@ int rateChange(int deviceID, int rate)
 	printf("Change play rate of %d to %d\r\n",deviceID,rate);
 	return 0;
 }
+
 int playtoggle(int deviceID)
 {
-	togglePlayPause("00000000", &data[deviceID]);
+	togglePlayPause(&data[deviceID]);
 	return 0;
+}
+
+void *alert()
+{
+	char alert;
+	while(1)
+	{
+		alert = getchar();
+		if ((alert == 'f') || (alert == 'F'))
+		{
+			printf("I am alerting!!!");
+			int i;
+			for (i=0; i<DEVICELIMIT; i++)
+			{
+				if (data[i].pipeline != NULL)
+				{
+					buildPipeline(AlarmfileURL, &data[i]);
+				}
+			}
+		}
+	}	
 }
