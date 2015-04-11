@@ -11,7 +11,7 @@
 int track = 0;
 
 /*Event to build pipeline and start playing*/
-int buildPipeline (char* FilePath, char* HostName, CustomData *data)
+int buildPipeline (char* FilePath, CustomData *data)
 {
   int ret;
   
@@ -32,7 +32,7 @@ int buildPipeline (char* FilePath, char* HostName, CustomData *data)
   data->file_src = gst_bin_get_by_name (GST_BIN(data->pipeline), "file-src");
   
   /*Configure UDP Sink*/
-  g_object_set (G_OBJECT (data->audio_sink), "host", HostName, NULL);
+  g_object_set (G_OBJECT (data->audio_sink), "host", data->HostName, NULL);
   g_object_set (G_OBJECT (data->audio_sink), "port", 5000, NULL);
 
   /*Set File Source*/
@@ -47,10 +47,10 @@ int buildPipeline (char* FilePath, char* HostName, CustomData *data)
   }
   data->playing = TRUE;
   data->rate = 1.0;
-
+return 0;
 }
 
-void togglePlayPause(char* Host, CustomData *data)
+void togglePlayPause(CustomData *data)
 {
     data->playing = !data->playing;
     gst_element_set_state (data->pipeline, data->playing ? GST_STATE_PLAYING : GST_STATE_PAUSED);
@@ -88,6 +88,3 @@ void send_seek_event (CustomData *data) {
   
   g_print ("Current rate: %g\n", data->rate);
 }
-
-  
-
