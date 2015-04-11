@@ -34,8 +34,9 @@ typedef struct _CustomData {
   
   gboolean playing;  /* Playing or Paused */
   gdouble rate;      /* Current playback rate (can be negative) */
+  char* HostName;
 } CustomData;
 void send_seek_event (CustomData *data);
-void togglePlayPause(char* Host, CustomData *data);
-int buildPipeline (char* FilePath, char* HostName, CustomData *data);
+void togglePlayPause(CustomData *data);
+int buildPipeline (char* FilePath, CustomData *data);
 #endif
