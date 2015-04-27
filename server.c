@@ -407,18 +407,19 @@ void *alert()
 	char alert;
 	while(1)
 	{
-		alert = getchar();
-		if ((alert == 'f') || (alert == 'F'))
+		alert = getchar();	//Wait for keyboard input
+		if ((alert == 'f') || (alert == 'F'))//If the F key (fire) is pressed, sound the alarm
 		{
-			printf("I am alerting!!!");
+			printf("I am alerting!!!");	//Console indication for debugging
 			int i;
-			for (i=0; i<DEVICELIMIT; i++)
+			for (i=0; i<DEVICELIMIT; i++)	//Cycle through all devices
 			{
-				if (data[i].pipeline != NULL)
+				if (data[i].pipeline != NULL)	//If device is running (connection != null)
 				{
-					buildPipeline(AlarmfileURL, &data[i]);
+					buildPipeline(AlarmfileURL, &data[i]);//Create pipeline to sound alarm
 				}
 			}
 		}
 	}	
 }
+
